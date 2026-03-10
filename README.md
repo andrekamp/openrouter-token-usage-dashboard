@@ -1,4 +1,6 @@
-# OpenRouter Usage Dashboard (`index.html`)
+# OpenRouter Usage Dashboard
+
+Github pages: https://andrekamp.github.io/openrouter-token-usage-dashboard/
 
 ## Personal Use
 
