@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OpenRouter Key Usage</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+    />
+    <style>
+      :root {
+        --bg-1: #021321;
+        --bg-2: #08324d;
+        --panel: #0e3049cc;
+        --ink: #eff6fb;
+        --muted: #9fc2d6;
+        --accent: #22d6ac;
+        --accent-2: #f6b64c;
+        --error: #ff7070;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        padding: 24px 16px;
+        color: var(--ink);
+        font-family: "Space Grotesk", sans-serif;
+        background:
+          radial-gradient(circle at 80% -10%, #1d5b82 0%, transparent 40%),
+          radial-gradient(circle at 15% 110%, #10415e 0%, transparent 35%),
+          linear-gradient(145deg, var(--bg-1), var(--bg-2));
+      }
+
+      .shell {
+        max-width: 1050px;
+        margin: 0 auto;
+      }
+
+      .panel {
+        background: var(--panel);
+        border: 1px solid #b4d8ee2f;
+        border-radius: 16px;
+        box-shadow: 0 18px 30px #00000045;
+      }
+
+      .hero,
+      .flags,
+      .raw {
+        padding: 18px;
+      }
+
+      h1,
+      h2 {
+        margin: 0;
+      }
+
+      p {
+        margin: 8px 0 0;
+        color: var(--muted);
+      }
+
+      .controls {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+      }
+
+      input,
+      select,
+      button {
+        border-radius: 12px;
+        border: 1px solid #afd5ec55;
+        font: inherit;
+      }
+
+      input {
+        padding: 11px 12px;
+        color: var(--ink);
+        background: #051a2a99;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      select {
+        padding: 10px 12px;
+        color: var(--ink);
+        background: #051a2a99;
+      }
+
+      button {
+        cursor: pointer;
+        padding: 10px 13px;
+        font-weight: 700;
+      }
+
+      #fetchBtn {
+        border: 0;
+        color: #012135;
+        background: linear-gradient(120deg, var(--accent), #1ea4d6);
+      }
+
+      #clearTokenBtn {
+        color: var(--ink);
+        background: #d2eaf720;
+      }
+
+      .memory {
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .memory label {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
+      #status {
+        min-height: 1.2rem;
+        margin-top: 10px;
+      }
+
+      .error {
+        color: var(--error);
+      }
+
+      .ok {
+        color: #5bf1a0;
+      }
+
+      .grid {
+        margin-top: 12px;
+        display: grid;
+        grid-template-columns: 1fr 1.8fr;
+        gap: 12px;
+      }
+
+      .gauge-card {
+        padding: 18px;
+      }
+
+      .gauge {
+        --p: 0%;
+        width: min(280px, 82vw);
+        aspect-ratio: 1;
+        margin: 0 auto;
+        border-radius: 50%;
+        background: conic-gradient(var(--accent) 0 var(--p), #ffffff22 var(--p) 100%);
+        position: relative;
+      }
+
+      .gauge::after {
+        content: "";
+        position: absolute;
+        inset: 14%;
+        border-radius: 50%;
+        background: linear-gradient(150deg, #052134, #0a2f47);
+        border: 1px solid #b5d7eb33;
+      }
+
+      .gauge-center {
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 0 14px;
+      }
+
+      #percent {
+        font-size: clamp(1.35rem, 3vw, 2.1rem);
+        font-weight: 700;
+      }
+
+      #gaugeText {
+        font-size: 0.9rem;
+        color: var(--muted);
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .kpi,
+      .bars {
+        padding: 14px;
+      }
+
+      .kpi {
+        background: #123e5d80;
+        border: 1px solid #b4d8ee24;
+        border-radius: 12px;
+      }
+
+      .kpi small {
+        color: var(--muted);
+      }
+
+      .kpi div {
+        margin-top: 5px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        word-break: break-word;
+      }
+
+      .bars {
+        grid-column: 1 / -1;
+      }
+
+      .row {
+        margin-top: 10px;
+      }
+
+      .row-head {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+      }
+
+      .track {
+        margin-top: 5px;
+        height: 9px;
+        border-radius: 999px;
+        background: #ffffff22;
+        overflow: hidden;
+      }
+
+      .fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+
+      .flags,
+      .raw {
+        margin-top: 12px;
+      }
+
+      #flags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .flag {
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        background: #cde7f21f;
+        border: 1px solid #cde7f233;
+      }
+
+      details summary {
+        cursor: pointer;
+      }
+
+      pre {
+        margin: 10px 0 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font: 0.83rem "IBM Plex Mono", monospace;
+      }
+
+      @media (max-width: 880px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .controls {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel hero">
+        <h1>OpenRouter Key Usage Dashboard</h1>
+        <p>Fetches <code>/api/v1/auth/key</code> and visualizes limit + consumption.</p>
+        <div class="controls">
+          <input id="token" type="password" placeholder="sk-or-v1-..." autocomplete="off" />
+          <button id="fetchBtn" type="button">Fetch Usage</button>
+        </div>
+        <div class="memory">
+          <label for="rememberMode">Token memory</label>
+          <select id="rememberMode">
+            <option value="none">Do not remember</option>
+            <option value="session">Remember for this session</option>
+            <option value="local">Remember on this device</option>
+          </select>
+          <button id="clearTokenBtn" type="button">Clear Saved Token</button>
+        </div>
+        <div id="status">Ready. Enter a token and fetch usage.</div>
+      </section>
+
+      <section class="grid">
+        <article class="panel gauge-card">
+          <div class="gauge" id="gauge">
+            <div class="gauge-center">
+              <div>
+                <div id="percent">0%</div>
+                <div id="gaugeText">Usage of cycle limit</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="metrics">
+          <div class="kpi"><small>Cycle reset</small><div id="reset">-</div></div>
+          <div class="kpi"><small>Limit</small><div id="limit">-</div></div>
+          <div class="kpi"><small>Remaining</small><div id="remaining">-</div></div>
+          <div class="panel bars">
+            <h2>Usage Breakdown</h2>
+            <div id="bars"></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel flags">
+        <h2>Key Flags</h2>
+        <div id="flags"></div>
+      </section>
+
+      <details class="panel raw">
+        <summary>Raw API Response</summary>
+        <pre id="raw">No data loaded yet.</pre>
+      </details>
+    </main>
+
+    <script>
+      const ENDPOINT = "https://openrouter.ai/api/v1/auth/key";
+      const SESSION_TOKEN_KEY = "openrouter_token_session";
+      const LOCAL_TOKEN_KEY = "openrouter_token_local";
+      const AUTO_REFRESH_MS = 5 * 60 * 1000;
+
+      const el = {
+        token: document.getElementById("token"),
+        fetchBtn: document.getElementById("fetchBtn"),
+        rememberMode: document.getElementById("rememberMode"),
+        clearTokenBtn: document.getElementById("clearTokenBtn"),
+        status: document.getElementById("status"),
+        gauge: document.getElementById("gauge"),
+        percent: document.getElementById("percent"),
+        gaugeText: document.getElementById("gaugeText"),
+        reset: document.getElementById("reset"),
+        limit: document.getElementById("limit"),
+        remaining: document.getElementById("remaining"),
+        bars: document.getElementById("bars"),
+        flags: document.getElementById("flags"),
+        raw: document.getElementById("raw")
+      };
+
+      const n = (v) => (Number.isFinite(v) ? v : 0);
+      const fmt = (v) => n(v).toLocaleString(undefined, { maximumFractionDigits: 4 });
+      const DEFAULT_GAUGE_TEXT = "Usage of cycle limit";
+      const FETCH_LABEL = "Fetch Usage";
+      const REFRESH_LABEL = "Refresh";
+      let hasLoadedData = false;
+      let isFetching = false;
+      let wasHidden = document.hidden;
+
+      function getErrorMessage(error) {
+        if (error instanceof Error && error.message) {
+          return error.message;
+        }
+        return String(error);
+      }
+
+      function resetDashboard() {
+        el.gauge.style.setProperty("--p", "0%");
+        el.percent.textContent = "0%";
+        el.gaugeText.textContent = DEFAULT_GAUGE_TEXT;
+        el.reset.textContent = "-";
+        el.limit.textContent = "-";
+        el.remaining.textContent = "-";
+        el.bars.replaceChildren();
+        el.flags.replaceChildren();
+        el.raw.textContent = "No data loaded yet.";
+        el.fetchBtn.textContent = FETCH_LABEL;
+        hasLoadedData = false;
+      }
+
+      function readStorage(storage, key) {
+        try {
+          return storage.getItem(key);
+        } catch {
+          return null;
+        }
+      }
+
+      function writeStorage(storage, key, value) {
+        try {
+          storage.setItem(key, value);
+        } catch {
+          // Ignore browser storage errors (private mode/quota/security settings).
+        }
+      }
+
+      function removeStorage(storage, key) {
+        try {
+          storage.removeItem(key);
+        } catch {
+          // Ignore browser storage errors (private mode/quota/security settings).
+        }
+      }
+
+      function clearStoredTokens() {
+        removeStorage(sessionStorage, SESSION_TOKEN_KEY);
+        removeStorage(localStorage, LOCAL_TOKEN_KEY);
+      }
+
+      function saveTokenForMode(token) {
+        clearStoredTokens();
+        if (!token) {
+          return;
+        }
+
+        if (el.rememberMode.value === "session") {
+          writeStorage(sessionStorage, SESSION_TOKEN_KEY, token);
+        } else if (el.rememberMode.value === "local") {
+          writeStorage(localStorage, LOCAL_TOKEN_KEY, token);
+        }
+      }
+
+      function restoreSavedToken() {
+        const localToken = readStorage(localStorage, LOCAL_TOKEN_KEY);
+        if (localToken) {
+          el.token.value = localToken;
+          el.rememberMode.value = "local";
+          status("Loaded saved token from this device.", "ok");
+          return true;
+        }
+
+        const sessionToken = readStorage(sessionStorage, SESSION_TOKEN_KEY);
+        if (sessionToken) {
+          el.token.value = sessionToken;
+          el.rememberMode.value = "session";
+          status("Loaded saved token from this session.", "ok");
+          return true;
+        }
+
+        return false;
+      }
+
+      function status(message, type = "") {
+        el.status.textContent = message;
+        el.status.className = type;
+      }
+
+      function canAutoRefresh() {
+        return hasLoadedData && Boolean(el.token.value.trim());
+      }
+
+      function renderBars(rows, reference) {
+        const fragment = document.createDocumentFragment();
+        rows.forEach(([name, value]) => {
+          const pct = Math.min(100, Math.max(0, (n(value) / reference) * 100));
+          const row = document.createElement("div");
+          row.className = "row";
+
+          const rowHead = document.createElement("div");
+          rowHead.className = "row-head";
+          const label = document.createElement("span");
+          label.textContent = name;
+          const amount = document.createElement("span");
+          amount.textContent = fmt(value);
+          rowHead.append(label, amount);
+
+          const track = document.createElement("div");
+          track.className = "track";
+          const fill = document.createElement("div");
+          fill.className = "fill";
+          fill.style.width = `${pct}%`;
+          track.append(fill);
+
+          row.append(rowHead, track);
+          fragment.append(row);
+        });
+        el.bars.replaceChildren(fragment);
+      }
+
+      function renderFlags(flagsData) {
+        const fragment = document.createDocumentFragment();
+        flagsData.forEach(([name, value]) => {
+          const item = document.createElement("span");
+          item.className = "flag";
+          item.textContent = `${name}: ${value}`;
+          fragment.append(item);
+        });
+        el.flags.replaceChildren(fragment);
+      }
+
+      function render(data, rawPayload) {
+        const limit = n(data.limit);
+        const used = n(data.usage);
+        const remaining = n(data.limit_remaining);
+        const usedPct = limit > 0 ? Math.min(100, Math.max(0, (used / limit) * 100)) : 0;
+
+        el.gauge.style.setProperty("--p", `${usedPct}%`);
+        el.percent.textContent = `${usedPct.toFixed(1)}%`;
+        el.gaugeText.textContent = `${fmt(used)} used of ${fmt(limit)} (${data.limit_reset || "cycle"})`;
+
+        el.reset.textContent = data.limit_reset || "-";
+        el.limit.textContent = fmt(limit);
+        el.remaining.textContent = fmt(remaining);
+
+        const rows = [
+          ["Usage (cycle)", data.usage],
+          ["Usage (daily)", data.usage_daily],
+          ["Usage (weekly)", data.usage_weekly],
+          ["Usage (monthly)", data.usage_monthly],
+          ["BYOK usage", data.byok_usage],
+          ["BYOK monthly", data.byok_usage_monthly]
+        ];
+        const ref = Math.max(limit, ...rows.map(([, value]) => n(value)), 1);
+        renderBars(rows, ref);
+
+        const flags = [
+          ["Management", data.is_management_key],
+          ["Provisioning", data.is_provisioning_key],
+          ["Free tier", data.is_free_tier],
+          ["BYOK in limit", data.include_byok_in_limit],
+          ["Expires", data.expires_at || "No expiry"]
+        ];
+        renderFlags(flags);
+
+        el.raw.textContent = JSON.stringify(rawPayload || { data }, null, 2);
+      }
+
+      async function fetchLive({ background = false } = {}) {
+        if (isFetching) {
+          return;
+        }
+
+        const token = el.token.value.trim();
+        if (!token) {
+          status("Enter a token first.", "error");
+          return;
+        }
+
+        isFetching = true;
+        saveTokenForMode(token);
+        if (!background) {
+          el.fetchBtn.disabled = true;
+          status("Loading...");
+        }
+
+        try {
+          const res = await fetch(ENDPOINT, { headers: { Authorization: `Bearer ${token}` } });
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          }
+          const payload = await res.json();
+          if (!payload?.data) {
+            throw new Error("Unexpected response shape.");
+          }
+          render(payload.data, payload);
+          hasLoadedData = true;
+          el.fetchBtn.textContent = REFRESH_LABEL;
+          status(background ? "Live usage refreshed." : "Live usage loaded.", "ok");
+        } catch (err) {
+          const baseMessage = getErrorMessage(err);
+          const message = baseMessage.toLowerCase().includes("failed to fetch")
+            ? `${baseMessage} (possible CORS/network issue from local file context)`
+            : baseMessage;
+          status(message, "error");
+        } finally {
+          if (!background) {
+            el.fetchBtn.disabled = false;
+          }
+          isFetching = false;
+        }
+      }
+
+      el.fetchBtn.addEventListener("click", fetchLive);
+      el.rememberMode.addEventListener("change", () => {
+        const token = el.token.value.trim();
+        saveTokenForMode(token);
+        if (el.rememberMode.value === "none") {
+          status("Token memory disabled.", "ok");
+        } else if (token) {
+          status(
+            el.rememberMode.value === "session"
+              ? "Token saved for this session."
+              : "Token saved on this device.",
+            "ok"
+          );
+        }
+      });
+      el.clearTokenBtn.addEventListener("click", () => {
+        clearStoredTokens();
+        el.token.value = "";
+        el.rememberMode.value = "none";
+        resetDashboard();
+        status("Saved token cleared.", "ok");
+      });
+      el.token.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+          fetchLive();
+        }
+      });
+      setInterval(() => {
+        if (document.hidden || !canAutoRefresh()) {
+          return;
+        }
+        fetchLive({ background: true });
+      }, AUTO_REFRESH_MS);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          wasHidden = true;
+          return;
+        }
+
+        const returnedFromHidden = wasHidden;
+        wasHidden = false;
+        if (returnedFromHidden && canAutoRefresh()) {
+          fetchLive({ background: true });
+        }
+      });
+
+      resetDashboard();
+      const hasSavedToken = restoreSavedToken();
+      if (hasSavedToken) {
+        fetchLive({ background: true });
+      }
+    </script>
+  </body>
+</html>
